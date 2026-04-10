@@ -1,0 +1,17 @@
+{
+  "name": "Tank View",
+  "short_name": "Tank View",
+  "description": "Progressive Web App for monitoring Otodata Anhydrous Ammonia Tanks",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#0d1117",
+  "theme_color": "#0d1117",
+  "icons": [
+    {
+      "src": "icon.png",
+      "sizes": "1024x1024",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
