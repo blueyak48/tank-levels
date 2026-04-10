@@ -1,4 +1,5 @@
-const API_URL = 'https://telematics.otodatanetwork.com:4431/v1.0/DataService.svc/devices';
+// IMPORTANT: Replace this URL with your deployed Cloudflare Worker URL (e.g. "https://my-proxy.my-name.workers.dev/")
+const API_URL = 'https://rough-sun-cdb6.zactyoder.workers.dev/'; // Previously: 'https://telematics.otodatanetwork.com:4431/v1.0/DataService.svc/devices'
 const REFRESH_INTERVAL_MS = 15 * 60 * 1000; // 15 mins
 const LBS_PER_GAL_ANHYDROUS = 5.15;
 const LBS_PER_TON = 2000;
@@ -109,7 +110,7 @@ async function fetchData() {
 
         const data = await response.json();
         renderTanks(data);
-        lastUpdatedEl.textContent = `Updated: ${new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}`;
+        lastUpdatedEl.textContent = `Updated: ${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
 
     } catch (error) {
         console.error("Failed to fetch data", error);
@@ -134,13 +135,13 @@ function renderTanks(devices) {
         const serial = device.Id || device.SerialNumber || device.TankSerialNumber;
         const config = TANKS_MAP[serial];
         const capacityGal = config.capacity;
-        
+
         const currentLevelPct = device.CurrentLevel || (device.Ullage ? 100 - device.Ullage : 0);
         const levelFraction = currentLevelPct / 100;
-        
+
         const inventoryGallons = capacityGal * levelFraction;
         const inventoryTons = (inventoryGallons * LBS_PER_GAL_ANHYDROUS) / LBS_PER_TON;
-        
+
         const maxFillGallons = capacityGal * 0.85;
         const maxFillTons = (maxFillGallons * LBS_PER_GAL_ANHYDROUS) / LBS_PER_TON;
         const spaceToFillTons = Math.max(0, maxFillTons - inventoryTons);
@@ -180,7 +181,7 @@ function renderTanks(devices) {
     relevantTanks.forEach(tank => {
         const tankEl = document.createElement('div');
         tankEl.className = `tank-card ${tank.statusClass}`;
-        
+
         tankEl.innerHTML = `
             <div class="card-header">
                 <div>
@@ -229,7 +230,7 @@ function setupPullToRefresh() {
         } else {
             touchstartY = 0;
         }
-    }, {passive: true});
+    }, { passive: true });
 
     document.addEventListener('touchmove', e => {
         if (!touchstartY) return;
@@ -241,7 +242,7 @@ function setupPullToRefresh() {
                 pullIndicator.textContent = "Release to refresh";
             }
         }
-    }, {passive: true});
+    }, { passive: true });
 
     document.addEventListener('touchend', e => {
         if (!touchstartY) return;
@@ -254,7 +255,7 @@ function setupPullToRefresh() {
             pullIndicator.classList.remove('visible');
         }
         touchstartY = 0;
-    }, {passive: true});
+    }, { passive: true });
 }
 
 // Boot up
