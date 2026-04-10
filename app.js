@@ -185,7 +185,11 @@ function renderTanks(devices) {
         groupedTanks[tank.location].push(tank);
     });
 
-    const sortedLocations = Object.keys(groupedTanks).sort();
+    const sortedLocations = Object.keys(groupedTanks).sort((a, b) => {
+        if (a === 'Texline') return -1;
+        if (b === 'Texline') return 1;
+        return a.localeCompare(b);
+    });
 
     sortedLocations.forEach(loc => {
         const tanksInLoc = groupedTanks[loc].sort((a, b) => a.name.localeCompare(b.name));
@@ -202,8 +206,8 @@ function renderTanks(devices) {
         locHeader.innerHTML = `
             <div class="location-header">${loc}</div>
             <div class="location-stats">
-                <span class="loc-stat"><span class="stat-label">Inv</span> ${totalLocInventory.toFixed(1)}t</span>
-                <span class="loc-stat"><span class="stat-label">Space</span> ${totalLocSpace.toFixed(1)}t</span>
+                <span class="loc-stat"><span class="stat-label">Inv</span> ${totalLocInventory.toFixed(1)}</span>
+                <span class="loc-stat"><span class="stat-label">Space</span> ${totalLocSpace.toFixed(1)}</span>
             </div>
         `;
         tankContainer.appendChild(locHeader);
