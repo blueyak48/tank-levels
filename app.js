@@ -1,5 +1,5 @@
-// IMPORTANT: Replace this URL with your deployed Cloudflare Worker URL (e.g. "https://my-proxy.my-name.workers.dev/")
-const API_URL = 'https://rough-sun-cdb6.zactyoder.workers.dev/'; // Previously: 'https://telematics.otodatanetwork.com:4431/v1.0/DataService.svc/devices'
+// Use a public CORS proxy because the target server uses port 4431, which is blocked by Cloudflare Workers and standard browsers natively.
+const API_URL = 'https://corsproxy.io/?' + encodeURIComponent('https://telematics.otodatanetwork.com:4431/v1.0/DataService.svc/devices');
 const REFRESH_INTERVAL_MS = 15 * 60 * 1000; // 15 mins
 const LBS_PER_GAL_ANHYDROUS = 5.15;
 const LBS_PER_TON = 2000;
