@@ -188,12 +188,25 @@ function renderTanks(devices) {
     const sortedLocations = Object.keys(groupedTanks).sort();
 
     sortedLocations.forEach(loc => {
-        const locHeader = document.createElement('h2');
-        locHeader.className = 'location-header';
-        locHeader.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 4px; vertical-align: text-bottom;"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>${loc}`;
-        tankContainer.appendChild(locHeader);
-
         const tanksInLoc = groupedTanks[loc].sort((a, b) => a.name.localeCompare(b.name));
+
+        let totalLocInventory = 0;
+        let totalLocSpace = 0;
+        tanksInLoc.forEach(t => {
+            totalLocInventory += parseFloat(t.inventoryTons);
+            totalLocSpace += parseFloat(t.spaceToFillTons);
+        });
+
+        const locHeader = document.createElement('div');
+        locHeader.className = 'location-header-wrapper';
+        locHeader.innerHTML = `
+            <div class="location-header">${loc}</div>
+            <div class="location-stats">
+                <span class="loc-stat"><span class="stat-label">Inv</span> ${totalLocInventory.toFixed(1)}t</span>
+                <span class="loc-stat"><span class="stat-label">Space</span> ${totalLocSpace.toFixed(1)}t</span>
+            </div>
+        `;
+        tankContainer.appendChild(locHeader);
 
         tanksInLoc.forEach(tank => {
             const tankEl = document.createElement('div');

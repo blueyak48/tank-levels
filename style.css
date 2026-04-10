@@ -80,14 +80,40 @@ header {
   margin: 0 auto;
 }
 
-.location-header {
-  font-size: 1.15rem;
-  font-weight: 600;
-  color: var(--accent-color);
-  margin-top: 0.75rem;
-  padding-left: 0.25rem;
+.location-header-wrapper {
   display: flex;
-  align-items: center;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-top: 0.75rem;
+  padding: 0 0.25rem 0.5rem 0.25rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.location-header {
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: #ffffff;
+  letter-spacing: 0.5px;
+}
+
+.location-stats {
+  display: flex;
+  gap: 0.85rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.loc-stat {
+  display: flex;
+  align-items: baseline;
+  gap: 0.25rem;
+}
+
+.loc-stat .stat-label {
+  font-size: 0.65rem;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 /* Glassmorphism Card */
