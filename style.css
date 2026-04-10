@@ -73,14 +73,15 @@ header {
 
 .tank-container {
   padding: 1rem 0.5rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-  max-width: 600px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 1rem;
+  max-width: 1400px;
   margin: 0 auto;
 }
 
 .location-header-wrapper {
+  grid-column: 1 / -1;
   display: flex;
   justify-content: space-between;
   align-items: flex-end;
