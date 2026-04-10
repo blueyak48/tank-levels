@@ -29,6 +29,8 @@ const saveSettingsBtn = document.getElementById('save-settings-btn');
 const settingsBtn = document.getElementById('settings-btn');
 const refreshBtn = document.getElementById('refresh-btn');
 const pullIndicator = document.getElementById('pull-indicator');
+const locationSorterContainer = document.getElementById('location-sorter');
+let currentSettingsOrder = [];
 
 // Time Formatter
 function timeSince(date) {
@@ -49,6 +51,68 @@ function setApiKey(key) {
     localStorage.setItem('otodata_api_key', key.trim());
 }
 
+// LocalStorage arrays for Priority Mapping
+function getLocationOrder() {
+    try {
+        const stored = localStorage.getItem('otodata_location_order');
+        if (stored) return JSON.parse(stored);
+    } catch(e) {}
+    // Build default initial map sorting Texline first
+    const baseOrder = [...new Set(Object.values(TANKS_MAP).map(t => t.loc))].sort();
+    const texIdx = baseOrder.indexOf('Texline');
+    if (texIdx > -1) {
+        baseOrder.splice(texIdx, 1);
+        baseOrder.unshift('Texline');
+    }
+    return baseOrder;
+}
+
+function setLocationOrder(orderArray) {
+    localStorage.setItem('otodata_location_order', JSON.stringify(orderArray));
+}
+
+// Interactive Location Sorter DOM Generation
+function renderSorter() {
+    if (!locationSorterContainer) return;
+    locationSorterContainer.innerHTML = '';
+    currentSettingsOrder.forEach((loc, index) => {
+        const item = document.createElement('div');
+        item.className = 'sorter-item';
+        
+        const nameEl = document.createElement('span');
+        nameEl.textContent = loc;
+        nameEl.style.fontWeight = '600';
+        
+        const actions = document.createElement('div');
+        actions.className = 'sorter-actions';
+        
+        const upBtn = document.createElement('button');
+        upBtn.className = 'sorter-btn';
+        upBtn.innerHTML = '▲';
+        if (index === 0) upBtn.disabled = true;
+        upBtn.onclick = () => {
+            [currentSettingsOrder[index - 1], currentSettingsOrder[index]] = [currentSettingsOrder[index], currentSettingsOrder[index - 1]];
+            renderSorter();
+        };
+        
+        const downBtn = document.createElement('button');
+        downBtn.className = 'sorter-btn';
+        downBtn.innerHTML = '▼';
+        if (index === currentSettingsOrder.length - 1) downBtn.disabled = true;
+        downBtn.onclick = () => {
+            [currentSettingsOrder[index], currentSettingsOrder[index + 1]] = [currentSettingsOrder[index + 1], currentSettingsOrder[index]];
+            renderSorter();
+        };
+        
+        actions.appendChild(upBtn);
+        actions.appendChild(downBtn);
+        item.appendChild(nameEl);
+        item.appendChild(actions);
+        
+        locationSorterContainer.appendChild(item);
+    });
+}
+
 // Init Function
 function init() {
     // Check if API key exists
@@ -62,6 +126,8 @@ function init() {
     // Events
     settingsBtn.addEventListener('click', () => {
         apiKeyInput.value = getApiKey() || '';
+        currentSettingsOrder = getLocationOrder();
+        renderSorter();
         settingsModal.classList.add('active');
     });
 
@@ -69,6 +135,7 @@ function init() {
         const key = apiKeyInput.value;
         if (key) {
             setApiKey(key);
+            setLocationOrder(currentSettingsOrder);
             settingsModal.classList.remove('active');
             fetchData();
             startAutoRefresh();
@@ -203,10 +270,13 @@ function renderTanks(devices) {
         groupedTanks[tank.location].push(tank);
     });
 
+    const activeOrder = getLocationOrder();
     const sortedLocations = Object.keys(groupedTanks).sort((a, b) => {
-        if (a === 'Texline') return -1;
-        if (b === 'Texline') return 1;
-        return a.localeCompare(b);
+        let idxA = activeOrder.indexOf(a);
+        let idxB = activeOrder.indexOf(b);
+        if (idxA === -1) idxA = 999;
+        if (idxB === -1) idxB = 999;
+        return idxA - idxB;
     });
 
     sortedLocations.forEach(loc => {
