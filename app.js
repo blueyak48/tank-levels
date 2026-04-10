@@ -153,9 +153,27 @@ function renderTanks(devices) {
 
         let lastCommsStr = 'unknown';
         let lastReadRaw = device.LastRead || device.LastCommunication || device.LastReadingDate;
-        if (lastReadRaw && !lastReadRaw.includes('1900-01-01')) {
-            if (!lastReadRaw.endsWith('Z')) lastReadRaw += 'Z';
-            lastCommsStr = timeSince(new Date(lastReadRaw));
+        
+        if (lastReadRaw) {
+            if (typeof lastReadRaw === 'string' && lastReadRaw.indexOf('/Date(') >= 0) {
+                // Parse WCF /Date(1234567890)/ format natively
+                const timestamp = parseInt(lastReadRaw.match(/-?\d+/)[0], 10);
+                lastCommsStr = timeSince(new Date(timestamp));
+            } else if (typeof lastReadRaw === 'number') {
+                const isSeconds = lastReadRaw.toString().length < 12;
+                lastCommsStr = timeSince(new Date(isSeconds ? lastReadRaw * 1000 : lastReadRaw));
+            } else if (!lastReadRaw.toString().includes('1900-01-01')) {
+                // Parse standard ISO strings
+                let isoStr = lastReadRaw.toString();
+                // Append 'Z' if there is no trailing timezone match like -05:00, +0500, or Z
+                if (!isoStr.endsWith('Z') && !isoStr.match(/[+-]\d{2}:?\d{2}$/)) {
+                    isoStr += 'Z';
+                }
+                const parsedDate = new Date(isoStr);
+                if (!isNaN(parsedDate)) {
+                    lastCommsStr = timeSince(parsedDate);
+                }
+            }
         }
 
         let statusClass = 'status-normal';
