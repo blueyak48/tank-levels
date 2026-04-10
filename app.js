@@ -152,8 +152,9 @@ function renderTanks(devices) {
         const spaceToFillTons = Math.max(0, maxFillTons - inventoryTons);
 
         let lastCommsStr = 'unknown';
-        const lastReadRaw = device.LastRead || device.LastCommunication || device.LastReadingDate;
+        let lastReadRaw = device.LastRead || device.LastCommunication || device.LastReadingDate;
         if (lastReadRaw && !lastReadRaw.includes('1900-01-01')) {
+            if (!lastReadRaw.endsWith('Z')) lastReadRaw += 'Z';
             lastCommsStr = timeSince(new Date(lastReadRaw));
         }
 
@@ -165,9 +166,9 @@ function renderTanks(devices) {
             serial,
             location: config.loc,
             name: config.name,
-            levelPct: currentLevelPct.toFixed(1),
-            inventoryTons: inventoryTons.toFixed(2),
-            spaceToFillTons: spaceToFillTons.toFixed(2),
+            levelPct: currentLevelPct.toFixed(0),
+            inventoryTons: inventoryTons.toFixed(1),
+            spaceToFillTons: spaceToFillTons.toFixed(1),
             lastComms: lastCommsStr,
             statusClass,
             // Group sorting keys
@@ -175,51 +176,55 @@ function renderTanks(devices) {
         };
     });
 
-    // Sort by Location then Name
-    relevantTanks.sort((a, b) => {
-        if (a.locSort < b.locSort) return -1;
-        if (a.locSort > b.locSort) return 1;
-        if (a.name < b.name) return -1;
-        if (a.name > b.name) return 1;
-        return 0;
+    // Group by location
+    const groupedTanks = {};
+    relevantTanks.forEach(tank => {
+        if (!groupedTanks[tank.location]) {
+            groupedTanks[tank.location] = [];
+        }
+        groupedTanks[tank.location].push(tank);
     });
 
-    relevantTanks.forEach(tank => {
-        const tankEl = document.createElement('div');
-        tankEl.className = `tank-card ${tank.statusClass}`;
+    const sortedLocations = Object.keys(groupedTanks).sort();
 
-        tankEl.innerHTML = `
-            <div class="card-header">
-                <div>
+    sortedLocations.forEach(loc => {
+        const locHeader = document.createElement('h2');
+        locHeader.className = 'location-header';
+        locHeader.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 4px; vertical-align: text-bottom;"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>${loc}`;
+        tankContainer.appendChild(locHeader);
+
+        const tanksInLoc = groupedTanks[loc].sort((a, b) => a.name.localeCompare(b.name));
+
+        tanksInLoc.forEach(tank => {
+            const tankEl = document.createElement('div');
+            tankEl.className = `tank-card ${tank.statusClass}`;
+
+            tankEl.innerHTML = `
+                <div class="card-header">
                     <div class="tank-name">${tank.name}</div>
-                    <div class="tank-location">
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
-                        ${tank.location}
+                    <div class="last-reading">Last reading: ${tank.lastComms}</div>
+                </div>
+                
+                <div class="progress-wrapper">
+                    <div class="progress-track">
+                        <div class="progress-fill" style="width: ${tank.levelPct}%"></div>
+                    </div>
+                    <div class="tank-percentage">${tank.levelPct}%</div>
+                </div>
+
+                <div class="card-stats">
+                    <div class="stat-item">
+                        <span class="stat-label">Inventory</span>
+                        <span class="stat-value">${tank.inventoryTons} Tons</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Space to Fill</span>
+                        <span class="stat-value">${tank.spaceToFillTons} Tons</span>
                     </div>
                 </div>
-                <div class="tank-percentage">${tank.levelPct}%</div>
-            </div>
-            
-            <div class="progress-track">
-                <div class="progress-fill" style="width: ${tank.levelPct}%"></div>
-            </div>
-
-            <div class="card-stats">
-                <div class="stat-item">
-                    <span class="stat-label">Inventory</span>
-                    <span class="stat-value">${tank.inventoryTons} Tons</span>
-                </div>
-                <div class="stat-item">
-                    <span class="stat-label">Space to Fill</span>
-                    <span class="stat-value">${tank.spaceToFillTons} Tons</span>
-                </div>
-            </div>
-            
-            <div style="font-size: 0.75rem; color: var(--text-secondary); text-align: right; margin-top: 0.5rem;">
-                Last reading: ${tank.lastComms}
-            </div>
-        `;
-        tankContainer.appendChild(tankEl);
+            `;
+            tankContainer.appendChild(tankEl);
+        });
     });
 }
 
