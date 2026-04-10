@@ -1,5 +1,5 @@
-// Use a public CORS proxy because the target server uses port 4431, which is blocked by Cloudflare Workers and standard browsers natively.
-const API_URL = 'https://corsproxy.io/?https://telematics.otodatanetwork.com:4431/v1.0/DataService.svc/devices';
+// Vercel handles the CORS and port 4431 constraints natively via vercel.json. We fetch cleanly from the same origin!
+const API_URL = '/api/otodata';
 const REFRESH_INTERVAL_MS = 15 * 60 * 1000; // 15 mins
 const LBS_PER_GAL_ANHYDROUS = 5.15;
 const LBS_PER_TON = 2000;
