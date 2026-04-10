@@ -116,6 +116,10 @@ header {
   letter-spacing: 0.5px;
 }
 
+.loc-space-ready {
+  color: var(--status-normal);
+}
+
 /* Glassmorphism Card */
 .tank-card {
   background: var(--glass-bg);

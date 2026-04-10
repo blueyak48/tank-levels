@@ -219,13 +219,15 @@ function renderTanks(devices) {
             totalLocSpace += parseFloat(t.spaceToFillTons);
         });
 
+        const spaceReadyClass = totalLocSpace > 23 ? 'loc-space-ready' : '';
+
         const locHeader = document.createElement('div');
         locHeader.className = 'location-header-wrapper';
         locHeader.innerHTML = `
             <div class="location-header">${loc}</div>
             <div class="location-stats">
                 <span class="loc-stat"><span class="stat-label">Inv</span> ${totalLocInventory.toFixed(1)}</span>
-                <span class="loc-stat"><span class="stat-label">Space</span> ${totalLocSpace.toFixed(1)}</span>
+                <span class="loc-stat"><span class="stat-label">Space</span> <span class="${spaceReadyClass}">${totalLocSpace.toFixed(1)}</span></span>
             </div>
         `;
         tankContainer.appendChild(locHeader);
