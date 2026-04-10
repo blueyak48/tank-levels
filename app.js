@@ -136,9 +136,14 @@ function renderTanks(devices) {
         const config = TANKS_MAP[serial];
         const capacityGal = config.capacity;
 
-        const currentLevelPct = device.CurrentLevel || (device.Ullage ? 100 - device.Ullage : 0);
-        const levelFraction = currentLevelPct / 100;
-
+        let levelFraction = 0;
+        if (device.LastLevel !== undefined) {
+            levelFraction = device.LastLevel; // API returns 0.00 to 1.00
+        } else if (device.CurrentLevel !== undefined) {
+            levelFraction = device.CurrentLevel > 1 ? device.CurrentLevel / 100 : device.CurrentLevel;
+        }
+        
+        const currentLevelPct = levelFraction * 100;
         const inventoryGallons = capacityGal * levelFraction;
         const inventoryTons = (inventoryGallons * LBS_PER_GAL_ANHYDROUS) / LBS_PER_TON;
 
@@ -147,8 +152,9 @@ function renderTanks(devices) {
         const spaceToFillTons = Math.max(0, maxFillTons - inventoryTons);
 
         let lastCommsStr = 'unknown';
-        if (device.LastCommunication || device.LastReadingDate) {
-            lastCommsStr = timeSince(new Date(device.LastCommunication || device.LastReadingDate));
+        const lastReadRaw = device.LastRead || device.LastCommunication || device.LastReadingDate;
+        if (lastReadRaw && !lastReadRaw.includes('1900-01-01')) {
+            lastCommsStr = timeSince(new Date(lastReadRaw));
         }
 
         let statusClass = 'status-normal';
