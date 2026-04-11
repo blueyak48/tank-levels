@@ -1,4 +1,4 @@
-const CACHE_NAME = 'tank-view-v1';
+const CACHE_NAME = 'tank-view-v2';
 const ASSETS = [
   './',
   './index.html',
