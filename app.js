@@ -291,6 +291,9 @@ function renderTanks(devices) {
 
         const spaceReadyClass = totalLocSpace > 23 ? 'loc-space-ready' : '';
 
+        const groupWrapper = document.createElement('div');
+        groupWrapper.className = 'location-group';
+
         const locHeader = document.createElement('div');
         locHeader.className = 'location-header-wrapper';
         locHeader.innerHTML = `
@@ -300,7 +303,7 @@ function renderTanks(devices) {
                 <span class="loc-stat"><span class="stat-label">Space</span> <span class="${spaceReadyClass}">${totalLocSpace.toFixed(1)}</span></span>
             </div>
         `;
-        tankContainer.appendChild(locHeader);
+        groupWrapper.appendChild(locHeader);
 
         tanksInLoc.forEach(tank => {
             const tankEl = document.createElement('div');
@@ -330,8 +333,10 @@ function renderTanks(devices) {
                     </div>
                 </div>
             `;
-            tankContainer.appendChild(tankEl);
+            groupWrapper.appendChild(tankEl);
         });
+        
+        tankContainer.appendChild(groupWrapper);
     });
 }
 
