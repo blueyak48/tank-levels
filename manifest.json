@@ -1,6 +1,6 @@
 {
-  "name": "Poole Ag Tank View",
-  "short_name": "Poole Ag",
+  "name": "Tanks",
+  "short_name": "Tanks",
   "description": "Progressive Web App for monitoring Otodata Anhydrous Ammonia Tanks",
   "start_url": "./index.html",
   "display": "standalone",
