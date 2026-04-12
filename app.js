@@ -31,6 +31,8 @@ const refreshBtn = document.getElementById('refresh-btn');
 const pullIndicator = document.getElementById('pull-indicator');
 const locationSorterContainer = document.getElementById('location-sorter');
 const logoutBtn = document.getElementById('logout-btn');
+const passwordGroup = document.getElementById('password-group');
+const passwordHelp = document.getElementById('password-help');
 let currentSettingsOrder = [];
 
 // Time Formatter
@@ -128,24 +130,31 @@ function renderSorter() {
     });
 }
 
+function openSettingsModal() {
+    apiKeyInput.value = '';
+    currentSettingsOrder = getLocationOrder();
+    renderSorter();
+    
+    const isLoggedIn = !!getApiKey();
+    logoutBtn.style.display = isLoggedIn ? 'block' : 'none';
+    passwordGroup.style.display = isLoggedIn ? 'none' : 'block';
+    passwordHelp.style.display = isLoggedIn ? 'none' : 'block';
+    
+    settingsModal.classList.add('active');
+}
+
 // Init Function
 function init() {
     // Check if API key exists
     if (!getApiKey()) {
-        settingsModal.classList.add('active');
+        openSettingsModal();
     } else {
         fetchData();
         startAutoRefresh();
     }
 
     // Events
-    settingsBtn.addEventListener('click', () => {
-        apiKeyInput.value = '';
-        currentSettingsOrder = getLocationOrder();
-        renderSorter();
-        logoutBtn.style.display = getApiKey() ? 'block' : 'none';
-        settingsModal.classList.add('active');
-    });
+    settingsBtn.addEventListener('click', openSettingsModal);
 
     logoutBtn.addEventListener('click', () => {
         setApiKey('');
