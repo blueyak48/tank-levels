@@ -30,6 +30,7 @@ const settingsBtn = document.getElementById('settings-btn');
 const refreshBtn = document.getElementById('refresh-btn');
 const pullIndicator = document.getElementById('pull-indicator');
 const locationSorterContainer = document.getElementById('location-sorter');
+const logoutBtn = document.getElementById('logout-btn');
 let currentSettingsOrder = [];
 
 // Time Formatter
@@ -40,6 +41,20 @@ function timeSince(date) {
     interval = seconds / 60;
     if (interval > 1) return Math.floor(interval) + " mins ago";
     return "just now";
+}
+
+// Cipher Algorithm
+function decryptKey(b64Cipher, password) {
+    try {
+        const cipherText = atob(b64Cipher);
+        let out = '';
+        for (let i = 0; i < cipherText.length; i++) {
+            out += String.fromCharCode(cipherText.charCodeAt(i) ^ password.charCodeAt(i % password.length));
+        }
+        return out;
+    } catch(e) {
+        return null;
+    }
 }
 
 // Logic to load API key
@@ -125,21 +140,41 @@ function init() {
 
     // Events
     settingsBtn.addEventListener('click', () => {
-        apiKeyInput.value = getApiKey() || '';
+        apiKeyInput.value = '';
         currentSettingsOrder = getLocationOrder();
         renderSorter();
+        logoutBtn.style.display = getApiKey() ? 'block' : 'none';
         settingsModal.classList.add('active');
     });
 
-    saveSettingsBtn.addEventListener('click', () => {
-        const key = apiKeyInput.value;
-        if (key) {
-            setApiKey(key);
-            setLocationOrder(currentSettingsOrder);
-            settingsModal.classList.remove('active');
-            fetchData();
-            startAutoRefresh();
+    logoutBtn.addEventListener('click', () => {
+        setApiKey('');
+        location.reload();
+    });
+
+    saveSettingsBtn.addEventListener('click', async () => {
+        const password = apiKeyInput.value.trim();
+        setLocationOrder(currentSettingsOrder); // Save sorter unconditionally
+
+        if (password) {
+            try {
+                // Fetch the remote cipher payload
+                const res = await fetch('key.txt');
+                const b64 = await res.text();
+                const decryptedKey = decryptKey(b64.trim(), password);
+                
+                if (decryptedKey) {
+                    setApiKey(decryptedKey);
+                }
+            } catch (err) {
+                alert('Decryption pipeline failed or key sync error.');
+                return;
+            }
         }
+        
+        settingsModal.classList.remove('active');
+        fetchData();
+        startAutoRefresh();
     });
 
     refreshBtn.addEventListener('click', () => {

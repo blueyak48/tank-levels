@@ -1,11 +1,13 @@
-const CACHE_NAME = 'tank-view-v2';
+const CACHE_NAME = 'tank-view-v3';
 const ASSETS = [
   './',
   './index.html',
   './style.css',
   './app.js',
   './manifest.json',
-  './icon.png'
+  './icon.png',
+  './logo.png',
+  './key.txt'
 ];
 
 self.addEventListener('install', event => {
